@@ -68,7 +68,7 @@ func TestGoodGet(t *testing.T) {
 	api := testAPI()
 
 	actual := make(map[string]interface{})
-	err := api.Request("GET", "/somewhere", nil, nil, &actual)
+	err := api.request(t.Context(), "GET", "/somewhere", nil, nil, &actual)
 	fatalIf(t, err)
 
 	assert.EqualValues(t, expected, actual)
@@ -103,7 +103,7 @@ func TestGetWithParams(t *testing.T) {
 	api := testAPI()
 
 	actual := make(map[string]interface{})
-	err := api.Request("GET", "/somewhere", &params, nil, &actual)
+	err := api.request(t.Context(), "GET", "/somewhere", &params, nil, &actual)
 	fatalIf(t, err)
 
 	assert.EqualValues(t, expected, actual)
@@ -112,9 +112,9 @@ func TestGetWithParams(t *testing.T) {
 func TestGetEmptyResponse(t *testing.T) {
 	delegate = func(w http.ResponseWriter, r *http.Request) {}
 	api := testAPI()
-	err := api.Request("GET", "/somewhere", nil, nil, nil)
+	err := api.request(t.Context(), "GET", "/somewhere", nil, nil, nil)
 	fatalIf(t, err)
-	result, err := api.RequestOk("GET", "/somewhere")
+	result, err := api.requestOk(t.Context(), "GET", "/somewhere")
 	fatalIf(t, err)
 	assert.True(t, result)
 }
@@ -141,7 +141,7 @@ func TestGetWithBody(t *testing.T) {
 	}
 
 	api := testAPI()
-	err := api.Request("POST", "/somewhere", nil, &s, nil)
+	err := api.request(t.Context(), "POST", "/somewhere", nil, &s, nil)
 	fatalIf(t, err)
 }
 
@@ -159,14 +159,14 @@ func TestGetWithNon200Response(t *testing.T) {
 	}
 
 	api := testAPI()
-	ok, err := api.RequestOk("GET", "/somewhere")
+	ok, err := api.requestOk(t.Context(), "GET", "/somewhere")
 	assert.False(t, ok)
 	assert.NotNil(t, err)
 }
 
 func TestMissingEndpoint(t *testing.T) {
 	api := testAPI()
-	ok, err := api.RequestOk("GET", "/nowhere")
+	ok, err := api.requestOk(t.Context(), "GET", "/nowhere")
 	assert.False(t, ok)
 	assert.NotNil(t, err)
 }

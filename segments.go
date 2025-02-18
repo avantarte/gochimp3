@@ -1,6 +1,9 @@
 package gochimp3
 
-import "fmt"
+import (
+	"context"
+	"fmt"
+)
 
 const (
 	segments_path       = "/lists/%s/segments"
@@ -23,7 +26,7 @@ type SegmentRequest struct {
 type Segment struct {
 	SegmentRequest
 
-	ID          string    `json:"id"`
+	ID          string `json:"id"`
 	MemberCount int    `json:"member_count"`
 	Type        string `json:"type"`
 	CreatedAt   string `json:"created_at"`
@@ -97,7 +100,7 @@ func (q *SegmentQueryParams) Params() map[string]string {
 	return m
 }
 
-func (list *ListResponse) GetSegments(params *SegmentQueryParams) (*ListOfSegments, error) {
+func (list *ListResponse) GetSegments(ctx context.Context, params *SegmentQueryParams) (*ListOfSegments, error) {
 	if err := list.CanMakeRequest(); err != nil {
 		return nil, err
 	}
@@ -105,10 +108,10 @@ func (list *ListResponse) GetSegments(params *SegmentQueryParams) (*ListOfSegmen
 	endpoint := fmt.Sprintf(segments_path, list.ID)
 	response := new(ListOfSegments)
 
-	return response, list.api.Request("GET", endpoint, params, nil, response)
+	return response, list.api.request(ctx, "GET", endpoint, params, nil, response)
 }
 
-func (list *ListResponse) GetSegment(id string, params *BasicQueryParams) (*Segment, error) {
+func (list *ListResponse) GetSegment(ctx context.Context, id string, params *BasicQueryParams) (*Segment, error) {
 	if err := list.CanMakeRequest(); err != nil {
 		return nil, err
 	}
@@ -116,10 +119,10 @@ func (list *ListResponse) GetSegment(id string, params *BasicQueryParams) (*Segm
 	endpoint := fmt.Sprintf(single_segment_path, list.ID, id)
 	response := new(Segment)
 
-	return response, list.api.Request("GET", endpoint, params, nil, response)
+	return response, list.api.request(ctx, "GET", endpoint, params, nil, response)
 }
 
-func (list *ListResponse) CreateSegment(body *SegmentRequest) (*Segment, error) {
+func (list *ListResponse) CreateSegment(ctx context.Context, body *SegmentRequest) (*Segment, error) {
 	if err := list.CanMakeRequest(); err != nil {
 		return nil, err
 	}
@@ -127,10 +130,10 @@ func (list *ListResponse) CreateSegment(body *SegmentRequest) (*Segment, error) 
 	endpoint := fmt.Sprintf(segments_path, list.ID)
 	response := new(Segment)
 
-	return response, list.api.Request("POST", endpoint, nil, &body, response)
+	return response, list.api.request(ctx, "POST", endpoint, nil, &body, response)
 }
 
-func (list *ListResponse) UpdateSegment(id string, body *SegmentRequest) (*Segment, error) {
+func (list *ListResponse) UpdateSegment(ctx context.Context, id string, body *SegmentRequest) (*Segment, error) {
 	if err := list.CanMakeRequest(); err != nil {
 		return nil, err
 	}
@@ -138,14 +141,14 @@ func (list *ListResponse) UpdateSegment(id string, body *SegmentRequest) (*Segme
 	endpoint := fmt.Sprintf(single_segment_path, list.ID, id)
 	response := new(Segment)
 
-	return response, list.api.Request("PATCH", endpoint, nil, &body, response)
+	return response, list.api.request(ctx, "PATCH", endpoint, nil, &body, response)
 }
 
 // BatchModifySegment adds and/or removes one or more emails from a static
 // segment using POST /lists/{list_id}/segments/{segment_id}. NOTE: You MUST
 // check SegmentBatchResponse for errors, as there may be multiple errors (i.e.
 // multiple failures to add/remove), and err may still be nil.
-func (list *ListResponse) BatchModifySegment(id string, body *SegmentBatchRequest) (*SegmentBatchResponse, error) {
+func (list *ListResponse) BatchModifySegment(ctx context.Context, id string, body *SegmentBatchRequest) (*SegmentBatchResponse, error) {
 	if err := list.CanMakeRequest(); err != nil {
 		return nil, err
 	}
@@ -153,14 +156,14 @@ func (list *ListResponse) BatchModifySegment(id string, body *SegmentBatchReques
 	endpoint := fmt.Sprintf(single_segment_path, list.ID, id)
 	response := new(SegmentBatchResponse)
 
-	return response, list.api.Request("POST", endpoint, nil, &body, response)
+	return response, list.api.request(ctx, "POST", endpoint, nil, &body, response)
 }
 
-func (list *ListResponse) DeleteSegment(id string) (bool, error) {
+func (list *ListResponse) DeleteSegment(ctx context.Context, id string) (bool, error) {
 	if err := list.CanMakeRequest(); err != nil {
 		return false, err
 	}
 
 	endpoint := fmt.Sprintf(single_segment_path, list.ID, id)
-	return list.api.RequestOk("DELETE", endpoint)
+	return list.api.requestOk(ctx, "DELETE", endpoint)
 }

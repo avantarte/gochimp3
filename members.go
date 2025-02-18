@@ -1,6 +1,7 @@
 package gochimp3
 
 import (
+	"context"
 	"crypto/md5"
 	"errors"
 	"fmt"
@@ -148,7 +149,7 @@ type MemberTag struct {
 	Name string `json:"name"`
 }
 
-func (list *ListResponse) GetMembers(params *InterestCategoriesQueryParams) (*ListOfMembers, error) {
+func (list *ListResponse) GetMembers(ctx context.Context, params *InterestCategoriesQueryParams) (*ListOfMembers, error) {
 	if err := list.CanMakeRequest(); err != nil {
 		return nil, err
 	}
@@ -156,7 +157,7 @@ func (list *ListResponse) GetMembers(params *InterestCategoriesQueryParams) (*Li
 	endpoint := fmt.Sprintf(members_path, list.ID)
 	response := new(ListOfMembers)
 
-	err := list.api.Request("GET", endpoint, params, nil, response)
+	err := list.api.request(ctx, "GET", endpoint, params, nil, response)
 	if err != nil {
 		return nil, err
 	}
@@ -168,7 +169,7 @@ func (list *ListResponse) GetMembers(params *InterestCategoriesQueryParams) (*Li
 	return response, nil
 }
 
-func (list *ListResponse) GetMember(id string, params *BasicQueryParams) (*Member, error) {
+func (list *ListResponse) GetMember(ctx context.Context, id string, params *BasicQueryParams) (*Member, error) {
 	if err := list.CanMakeRequest(); err != nil {
 		return nil, err
 	}
@@ -177,10 +178,10 @@ func (list *ListResponse) GetMember(id string, params *BasicQueryParams) (*Membe
 	response := new(Member)
 	response.api = list.api
 
-	return response, list.api.Request("GET", endpoint, params, nil, response)
+	return response, list.api.request(ctx, "GET", endpoint, params, nil, response)
 }
 
-func (list *ListResponse) CreateMember(body *MemberRequest) (*Member, error) {
+func (list *ListResponse) CreateMember(ctx context.Context, body *MemberRequest) (*Member, error) {
 	if err := list.CanMakeRequest(); err != nil {
 		return nil, err
 	}
@@ -189,10 +190,10 @@ func (list *ListResponse) CreateMember(body *MemberRequest) (*Member, error) {
 	response := new(Member)
 	response.api = list.api
 
-	return response, list.api.Request("POST", endpoint, nil, body, response)
+	return response, list.api.request(ctx, "POST", endpoint, nil, body, response)
 }
 
-func (list *ListResponse) UpdateMember(id string, body *MemberRequest) (*Member, error) {
+func (list *ListResponse) UpdateMember(ctx context.Context, id string, body *MemberRequest) (*Member, error) {
 	if err := list.CanMakeRequest(); err != nil {
 		return nil, err
 	}
@@ -201,10 +202,10 @@ func (list *ListResponse) UpdateMember(id string, body *MemberRequest) (*Member,
 	response := new(Member)
 	response.api = list.api
 
-	return response, list.api.Request("PATCH", endpoint, nil, body, response)
+	return response, list.api.request(ctx, "PATCH", endpoint, nil, body, response)
 }
 
-func (list *ListResponse) AddOrUpdateMember(id string, body *MemberRequest) (*Member, error) {
+func (list *ListResponse) AddOrUpdateMember(ctx context.Context, id string, body *MemberRequest) (*Member, error) {
 	if err := list.CanMakeRequest(); err != nil {
 		return nil, err
 	}
@@ -213,25 +214,25 @@ func (list *ListResponse) AddOrUpdateMember(id string, body *MemberRequest) (*Me
 	response := new(Member)
 	response.api = list.api
 
-	return response, list.api.Request("PUT", endpoint, nil, body, response)
+	return response, list.api.request(ctx, "PUT", endpoint, nil, body, response)
 }
 
-func (list *ListResponse) DeleteMember(id string) (bool, error) {
+func (list *ListResponse) DeleteMember(ctx context.Context, id string) (bool, error) {
 	if err := list.CanMakeRequest(); err != nil {
 		return false, err
 	}
 
 	endpoint := fmt.Sprintf(single_member_path, list.ID, id)
-	return list.api.RequestOk("DELETE", endpoint)
+	return list.api.requestOk(ctx, "DELETE", endpoint)
 }
 
-func (list *ListResponse) DeleteMemberPermanent(id string) (bool, error) {
+func (list *ListResponse) DeleteMemberPermanent(ctx context.Context, id string) (bool, error) {
 	if err := list.CanMakeRequest(); err != nil {
 		return false, err
 	}
 
 	endpoint := fmt.Sprintf(delete_permanent_path, list.ID, id)
-	return list.api.RequestOk("POST", endpoint)
+	return list.api.requestOk(ctx, "POST", endpoint)
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -256,7 +257,7 @@ type MemberActivity struct {
 	ParentCampaign string `json:"parent_campaign"`
 }
 
-func (mem *Member) GetActivity(params *BasicQueryParams) (*ListOfMemberActivity, error) {
+func (mem *Member) GetActivity(ctx context.Context, params *BasicQueryParams) (*ListOfMemberActivity, error) {
 	if err := mem.CanMakeRequest(); err != nil {
 		return nil, err
 	}
@@ -264,7 +265,7 @@ func (mem *Member) GetActivity(params *BasicQueryParams) (*ListOfMemberActivity,
 	endpoint := fmt.Sprintf(member_activity_path, mem.ListID, mem.ID)
 	response := new(ListOfMemberActivity)
 
-	return response, mem.api.Request("GET", endpoint, params, nil, response)
+	return response, mem.api.request(ctx, "GET", endpoint, params, nil, response)
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -286,7 +287,7 @@ type MemberGoal struct {
 	Data          string `json:"data"`
 }
 
-func (mem *Member) GetGoals(params *BasicQueryParams) (*ListOfMemberGoals, error) {
+func (mem *Member) GetGoals(ctx context.Context, params *BasicQueryParams) (*ListOfMemberGoals, error) {
 	if err := mem.CanMakeRequest(); err != nil {
 		return nil, err
 	}
@@ -294,7 +295,7 @@ func (mem *Member) GetGoals(params *BasicQueryParams) (*ListOfMemberGoals, error
 	endpoint := fmt.Sprintf(member_goals_path, mem.ListID, mem.ID)
 	response := new(ListOfMemberGoals)
 
-	return response, mem.api.Request("GET", endpoint, params, nil, response)
+	return response, mem.api.request(ctx, "GET", endpoint, params, nil, response)
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -321,7 +322,7 @@ type MemberNoteLong struct {
 	withLinks
 }
 
-func (mem *Member) GetNotes(params *ExtendedQueryParams) (*ListOfMemberNotes, error) {
+func (mem *Member) GetNotes(ctx context.Context, params *ExtendedQueryParams) (*ListOfMemberNotes, error) {
 	if err := mem.CanMakeRequest(); err != nil {
 		return nil, err
 	}
@@ -329,10 +330,10 @@ func (mem *Member) GetNotes(params *ExtendedQueryParams) (*ListOfMemberNotes, er
 	endpoint := fmt.Sprintf(member_notes_path, mem.ListID, mem.ID)
 	response := new(ListOfMemberNotes)
 
-	return response, mem.api.Request("GET", endpoint, params, nil, response)
+	return response, mem.api.request(ctx, "GET", endpoint, params, nil, response)
 }
 
-func (mem *Member) CreateNote(msg string) (*MemberNoteLong, error) {
+func (mem *Member) CreateNote(ctx context.Context, msg string) (*MemberNoteLong, error) {
 	if err := mem.CanMakeRequest(); err != nil {
 		return nil, err
 	}
@@ -344,10 +345,10 @@ func (mem *Member) CreateNote(msg string) (*MemberNoteLong, error) {
 		Note: msg,
 	}
 
-	return response, mem.api.Request("POST", endpoint, nil, &body, response)
+	return response, mem.api.request(ctx, "POST", endpoint, nil, &body, response)
 }
 
-func (mem *Member) UpdateNote(id, msg string) (*MemberNoteLong, error) {
+func (mem *Member) UpdateNote(ctx context.Context, id, msg string) (*MemberNoteLong, error) {
 	if err := mem.CanMakeRequest(); err != nil {
 		return nil, err
 	}
@@ -359,10 +360,10 @@ func (mem *Member) UpdateNote(id, msg string) (*MemberNoteLong, error) {
 		Note: msg,
 	}
 
-	return response, mem.api.Request("PATCH", endpoint, nil, &body, response)
+	return response, mem.api.request(ctx, "PATCH", endpoint, nil, &body, response)
 }
 
-func (mem *Member) GetNote(id string, params *BasicQueryParams) (*MemberNoteLong, error) {
+func (mem *Member) GetNote(ctx context.Context, id string, params *BasicQueryParams) (*MemberNoteLong, error) {
 	if err := mem.CanMakeRequest(); err != nil {
 		return nil, err
 	}
@@ -370,16 +371,16 @@ func (mem *Member) GetNote(id string, params *BasicQueryParams) (*MemberNoteLong
 	endpoint := fmt.Sprintf(single_member_note_path, mem.ListID, mem.ID, id)
 	response := new(MemberNoteLong)
 
-	return response, mem.api.Request("GET", endpoint, params, nil, response)
+	return response, mem.api.request(ctx, "GET", endpoint, params, nil, response)
 }
 
-func (mem *Member) DeleteNote(id string) (bool, error) {
+func (mem *Member) DeleteNote(ctx context.Context, id string) (bool, error) {
 	if err := mem.CanMakeRequest(); err != nil {
 		return false, err
 	}
 
 	endpoint := fmt.Sprintf(single_member_note_path, mem.ListID, mem.ID, id)
-	return mem.api.RequestOk("DELETE", endpoint)
+	return mem.api.requestOk(ctx, "DELETE", endpoint)
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -406,7 +407,7 @@ type MemberTagLong struct {
 	withLinks
 }
 
-func (mem *Member) GetTags(params *ExtendedQueryParams) (*ListOfMemberTags, error) {
+func (mem *Member) GetTags(ctx context.Context, params *ExtendedQueryParams) (*ListOfMemberTags, error) {
 	if err := mem.CanMakeRequest(); err != nil {
 		return nil, err
 	}
@@ -414,10 +415,10 @@ func (mem *Member) GetTags(params *ExtendedQueryParams) (*ListOfMemberTags, erro
 	endpoint := fmt.Sprintf(member_tags_path, mem.ListID, mem.ID)
 	response := new(ListOfMemberTags)
 
-	return response, mem.api.Request("GET", endpoint, params, nil, response)
+	return response, mem.api.request(ctx, "GET", endpoint, params, nil, response)
 }
 
-func (mem *Member) UpdateTags(tags []UpdateMemberTag) (*ListOfMemberTags, error) {
+func (mem *Member) UpdateTags(ctx context.Context, tags []UpdateMemberTag) (*ListOfMemberTags, error) {
 	if err := mem.CanMakeRequest(); err != nil {
 		return nil, err
 	}
@@ -431,5 +432,5 @@ func (mem *Member) UpdateTags(tags []UpdateMemberTag) (*ListOfMemberTags, error)
 		Tags: tags,
 	}
 
-	return response, mem.api.Request("POST", endpoint, nil, &body, response)
+	return response, mem.api.request(ctx, "POST", endpoint, nil, &body, response)
 }

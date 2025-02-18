@@ -1,5 +1,7 @@
 package gochimp3
 
+import "context"
+
 const (
 	search_members_path = "/search-members"
 )
@@ -29,12 +31,12 @@ type Matches struct {
 	TotalItems int64    `json:"total_items"`
 }
 
-func (list *ListResponse) SearchMembers(params *SearchMembersQueryParams) (*SearchMembersResponse, error) {
+func (list *ListResponse) SearchMembers(ctx context.Context, params *SearchMembersQueryParams) (*SearchMembersResponse, error) {
 	response := new(SearchMembersResponse)
 
 	params.listID = list.ID
 
-	err := list.api.Request("GET", search_members_path, params, nil, response)
+	err := list.api.request(ctx, "GET", search_members_path, params, nil, response)
 	if err != nil {
 		return nil, err
 	}

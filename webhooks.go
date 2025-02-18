@@ -1,6 +1,9 @@
 package gochimp3
 
-import "fmt"
+import (
+	"context"
+	"fmt"
+)
 
 const (
 	webhooks_path       = "/lists/%s/webhooks"
@@ -41,7 +44,7 @@ type HookEvents struct {
 	Campaign    bool `json:"campaign"`
 }
 
-func (list *ListResponse) CreateWebHooks(body *WebHookRequest) (*WebHook, error) {
+func (list *ListResponse) CreateWebHooks(ctx context.Context, body *WebHookRequest) (*WebHook, error) {
 	if err := list.CanMakeRequest(); err != nil {
 		return nil, err
 	}
@@ -49,10 +52,10 @@ func (list *ListResponse) CreateWebHooks(body *WebHookRequest) (*WebHook, error)
 	endpoint := fmt.Sprintf(webhooks_path, list.ID)
 	response := new(WebHook)
 
-	return response, list.api.Request("POST", endpoint, nil, &body, response)
+	return response, list.api.request(ctx, "POST", endpoint, nil, &body, response)
 }
 
-func (list *ListResponse) UpdateWebHook(id string, body *WebHookRequest) (*WebHook, error) {
+func (list *ListResponse) UpdateWebHook(ctx context.Context, id string, body *WebHookRequest) (*WebHook, error) {
 	if err := list.CanMakeRequest(); err != nil {
 		return nil, err
 	}
@@ -60,12 +63,12 @@ func (list *ListResponse) UpdateWebHook(id string, body *WebHookRequest) (*WebHo
 	endpoint := fmt.Sprintf(single_webhook_path, list.ID, id)
 	response := new(WebHook)
 
-	return response, list.api.Request("PATCH", endpoint, nil, &body, response)
+	return response, list.api.request(ctx, "PATCH", endpoint, nil, &body, response)
 }
 
 // TODO - does this take filters? undocumented
 
-func (list *ListResponse) GetWebHooks() (*ListOfWebHooks, error) {
+func (list *ListResponse) GetWebHooks(ctx context.Context) (*ListOfWebHooks, error) {
 	if err := list.CanMakeRequest(); err != nil {
 		return nil, err
 	}
@@ -73,10 +76,10 @@ func (list *ListResponse) GetWebHooks() (*ListOfWebHooks, error) {
 	endpoint := fmt.Sprintf(webhooks_path, list.ID)
 	response := new(ListOfWebHooks)
 
-	return response, list.api.Request("GET", endpoint, nil, nil, response)
+	return response, list.api.request(ctx, "GET", endpoint, nil, nil, response)
 }
 
-func (list *ListResponse) GetWebHook(id string) (*WebHook, error) {
+func (list *ListResponse) GetWebHook(ctx context.Context, id string) (*WebHook, error) {
 	if err := list.CanMakeRequest(); err != nil {
 		return nil, err
 	}
@@ -84,14 +87,14 @@ func (list *ListResponse) GetWebHook(id string) (*WebHook, error) {
 	endpoint := fmt.Sprintf(single_webhook_path, list.ID, id)
 	response := new(WebHook)
 
-	return response, list.api.Request("GET", endpoint, nil, nil, response)
+	return response, list.api.request(ctx, "GET", endpoint, nil, nil, response)
 }
 
-func (list *ListResponse) DeleteWebHook(id string) (bool, error) {
+func (list *ListResponse) DeleteWebHook(ctx context.Context, id string) (bool, error) {
 	if err := list.CanMakeRequest(); err != nil {
 		return false, err
 	}
 
 	endpoint := fmt.Sprintf(single_webhook_path, list.ID, id)
-	return list.api.RequestOk("DELETE", endpoint)
+	return list.api.requestOk(ctx, "DELETE", endpoint)
 }

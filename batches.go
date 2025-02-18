@@ -1,6 +1,7 @@
 package gochimp3
 
 import (
+	"context"
 	"fmt"
 	"net/url"
 )
@@ -10,10 +11,10 @@ const (
 	single_batch_path = batches_path + "/%s"
 )
 
-func (api *API) GetBatchOperations(params *ListQueryParams) (*ListOfBatchOperations, error) {
+func (api *API) GetBatchOperations(ctx context.Context, params *ListQueryParams) (*ListOfBatchOperations, error) {
 	response := new(ListOfBatchOperations)
 
-	err := api.Request("GET", batches_path, params, nil, response)
+	err := api.request(ctx, "GET", batches_path, params, nil, response)
 	if err != nil {
 		return nil, err
 	}
@@ -30,18 +31,18 @@ type ListOfBatchOperations struct {
 	BatchOperations []BatchOperationResponse `json:"batches"`
 }
 
-func (api *API) GetBatchOperation(id string, params *BasicQueryParams) (*BatchOperationResponse, error) {
+func (api *API) GetBatchOperation(ctx context.Context, id string, params *BasicQueryParams) (*BatchOperationResponse, error) {
 	endpoint := fmt.Sprintf(single_batch_path, id)
 	response := new(BatchOperationResponse)
 	response.api = api
 
-	return response, api.Request("GET", endpoint, params, nil, response)
+	return response, api.request(ctx, "GET", endpoint, params, nil, response)
 }
 
-func (api *API) CreateBatchOperation(body *BatchOperationCreationRequest) (*BatchOperationResponse, error) {
+func (api *API) CreateBatchOperation(ctx context.Context, body *BatchOperationCreationRequest) (*BatchOperationResponse, error) {
 	response := new(BatchOperationResponse)
 	response.api = api
-	return response, api.Request("POST", batches_path, nil, body, response)
+	return response, api.request(ctx, "POST", batches_path, nil, body, response)
 }
 
 type BatchOperationCreationRequest struct {

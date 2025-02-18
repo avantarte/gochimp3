@@ -2,10 +2,10 @@ package gochimp3
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"net/http/httputil"
@@ -36,43 +36,38 @@ type API struct {
 
 //go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 . Mailchimp
 type Mailchimp interface {
-	CreateBatchOperation(body *BatchOperationCreationRequest) (*BatchOperationResponse, error)
-	CreateCampaign(body *CampaignCreationRequest) (*CampaignResponse, error)
-	CreateCampaignFolder(body *CampaignFolderCreationRequest) (*CampaignFolder, error)
-	CreateList(body *ListCreationRequest) (*ListResponse, error)
-	CreateTemplate(body *TemplateCreationRequest) (*TemplateResponse, error)
-	CreateTemplateFolder(body *TemplateFolderCreationRequest) (*TemplateFolder, error)
-	DeleteCampaign(id string) (bool, error)
-	DeleteList(id string) (bool, error)
-	DeleteStore(id string) (bool, error)
-	DeleteTemplate(id string) (bool, error)
-	GetBatchOperation(id string, params *BasicQueryParams) (*BatchOperationResponse, error)
-	GetBatchOperations(params *ListQueryParams) (*ListOfBatchOperations, error)
-	GetCampaign(id string, params *BasicQueryParams) (*CampaignResponse, error)
-	GetCampaignContent(id string, params *BasicQueryParams) (*CampaignContentResponse, error)
-	GetCampaignFolders(params *CampaignFolderQueryParams) (*ListOfCampaignFolders, error)
-	GetCampaigns(params *CampaignQueryParams) (*ListOfCampaigns, error)
-	GetList(id string, params *BasicQueryParams) (*ListResponse, error)
-	GetLists(params *ListQueryParams) (*ListOfLists, error)
-	GetRoot(params *BasicQueryParams) (*RootResponse, error)
-	GetTemplate(id string, params *BasicQueryParams) (*TemplateResponse, error)
-	GetTemplateDefaultContent(id string, params *BasicQueryParams) (*TemplateDefaultContentResponse, error)
-	GetTemplateFolders(params *TemplateFolderQueryParams) (*ListOfTemplateFolders, error)
-	GetTemplates(params *TemplateQueryParams) (*ListOfTemplates, error)
+	CreateBatchOperation(ctx context.Context, body *BatchOperationCreationRequest) (*BatchOperationResponse, error)
+	CreateCampaign(ctx context.Context, body *CampaignCreationRequest) (*CampaignResponse, error)
+	CreateCampaignFolder(ctx context.Context, body *CampaignFolderCreationRequest) (*CampaignFolder, error)
+	CreateList(ctx context.Context, body *ListCreationRequest) (*ListResponse, error)
+	CreateTemplate(ctx context.Context, body *TemplateCreationRequest) (*TemplateResponse, error)
+	CreateTemplateFolder(ctx context.Context, body *TemplateFolderCreationRequest) (*TemplateFolder, error)
+	DeleteCampaign(ctx context.Context, id string) (bool, error)
+	DeleteList(ctx context.Context, id string) (bool, error)
+	DeleteTemplate(ctx context.Context, id string) (bool, error)
+	GetBatchOperation(ctx context.Context, id string, params *BasicQueryParams) (*BatchOperationResponse, error)
+	GetBatchOperations(ctx context.Context, params *ListQueryParams) (*ListOfBatchOperations, error)
+	GetCampaign(ctx context.Context, id string, params *BasicQueryParams) (*CampaignResponse, error)
+	GetCampaignContent(ctx context.Context, id string, params *BasicQueryParams) (*CampaignContentResponse, error)
+	GetCampaignFolders(ctx context.Context, params *CampaignFolderQueryParams) (*ListOfCampaignFolders, error)
+	GetCampaigns(ctx context.Context, params *CampaignQueryParams) (*ListOfCampaigns, error)
+	GetList(ctx context.Context, id string, params *BasicQueryParams) (*ListResponse, error)
+	GetLists(ctx context.Context, params *ListQueryParams) (*ListOfLists, error)
+	GetRoot(ctx context.Context, params *BasicQueryParams) (*RootResponse, error)
+	GetTemplate(ctx context.Context, id string, params *BasicQueryParams) (*TemplateResponse, error)
+	GetTemplateDefaultContent(ctx context.Context, id string, params *BasicQueryParams) (*TemplateDefaultContentResponse, error)
+	GetTemplateFolders(ctx context.Context, params *TemplateFolderQueryParams) (*ListOfTemplateFolders, error)
+	GetTemplates(ctx context.Context, params *TemplateQueryParams) (*ListOfTemplates, error)
 	MemberForApiCalls(listId string, email string) *Member
 	NewListResponse(id string) *ListResponse
-	PauseSending(workflowID string, emailID string) (bool, error)
-	PauseSendingAll(id string) (bool, error)
-	Request(method string, path string, params QueryParams, body interface{}, response interface{}) error
-	RequestOk(method string, path string) (bool, error)
-	SendCampaign(id string, body *SendCampaignRequest) (bool, error)
-	SendTestEmail(id string, body *TestEmailRequest) (bool, error)
-	StartSending(workflowID string, emailID string) (bool, error)
-	StartSendingAll(id string) (bool, error)
-	UpdateCampaign(id string, body *CampaignCreationRequest) (*CampaignResponse, error)
-	UpdateCampaignContent(id string, body *CampaignContentUpdateRequest) (*CampaignContentResponse, error)
-	UpdateList(id string, body *ListCreationRequest) (*ListResponse, error)
-	UpdateTemplate(id string, body *TemplateCreationRequest) (*TemplateResponse, error)
+	SendCampaign(ctx context.Context, id string, body *SendCampaignRequest) (bool, error)
+	SendTestEmail(ctx context.Context, id string, body *TestEmailRequest) (bool, error)
+	UpdateCampaign(ctx context.Context, id string, body *CampaignCreationRequest) (*CampaignResponse, error)
+	UpdateCampaignContent(ctx context.Context, id string, body *CampaignContentUpdateRequest) (*CampaignContentResponse, error)
+	UpdateList(ctx context.Context, id string, body *ListCreationRequest) (*ListResponse, error)
+	UpdateTemplate(ctx context.Context, id string, body *TemplateCreationRequest) (*TemplateResponse, error)
+	request(ctx context.Context, method string, path string, params QueryParams, body interface{}, response interface{}) error
+	requestOk(ctx context.Context, method string, path string) (bool, error)
 }
 
 var _ Mailchimp = &API{}
@@ -97,7 +92,7 @@ func New(apiKey string, client *http.Client) *API {
 }
 
 // Request will make a call to the actual API.
-func (api *API) Request(method, path string, params QueryParams, body, response interface{}) error {
+func (api *API) request(ctx context.Context, method, path string, params QueryParams, body, response interface{}) error {
 	requestURL := fmt.Sprintf("%s%s", api.endpoint, path)
 	if api.Debug {
 		log.Printf("Requesting %s: %s\n", method, requestURL)
@@ -117,7 +112,7 @@ func (api *API) Request(method, path string, params QueryParams, body, response 
 		}
 	}
 
-	req, err := http.NewRequest(method, requestURL, bodyBytes)
+	req, err := http.NewRequestWithContext(ctx, method, requestURL, bodyBytes)
 	if err != nil {
 		return err
 	}
@@ -155,7 +150,7 @@ func (api *API) Request(method, path string, params QueryParams, body, response 
 		log.Printf("%s", string(dump))
 	}
 
-	data, err = ioutil.ReadAll(resp.Body)
+	data, err = io.ReadAll(resp.Body)
 	if err != nil {
 		return err
 	}
@@ -178,9 +173,9 @@ func (api *API) Request(method, path string, params QueryParams, body, response 
 	return parseAPIError(data)
 }
 
-// RequestOk Make Request ignoring body and return true if HTTP status code is 2xx.
-func (api *API) RequestOk(method, path string) (bool, error) {
-	err := api.Request(method, path, nil, nil, nil)
+// requestOk Make Request ignoring body and return true if HTTP status code is 2xx.
+func (api *API) requestOk(ctx context.Context, method, path string) (bool, error) {
+	err := api.request(ctx, method, path, nil, nil, nil)
 	if err != nil {
 		return false, err
 	}
