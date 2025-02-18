@@ -436,37 +436,6 @@ type FakeMailchimp struct {
 		result1 *gochimp3.TemplateResponse
 		result2 error
 	}
-	requestStub        func(context.Context, string, string, gochimp3.QueryParams, interface{}, interface{}) error
-	requestMutex       sync.RWMutex
-	requestArgsForCall []struct {
-		arg1 context.Context
-		arg2 string
-		arg3 string
-		arg4 gochimp3.QueryParams
-		arg5 interface{}
-		arg6 interface{}
-	}
-	requestReturns struct {
-		result1 error
-	}
-	requestReturnsOnCall map[int]struct {
-		result1 error
-	}
-	requestOkStub        func(context.Context, string, string) (bool, error)
-	requestOkMutex       sync.RWMutex
-	requestOkArgsForCall []struct {
-		arg1 context.Context
-		arg2 string
-		arg3 string
-	}
-	requestOkReturns struct {
-		result1 bool
-		result2 error
-	}
-	requestOkReturnsOnCall map[int]struct {
-		result1 bool
-		result2 error
-	}
 	invocations      map[string][][]interface{}
 	invocationsMutex sync.RWMutex
 }
@@ -2426,138 +2395,6 @@ func (fake *FakeMailchimp) UpdateTemplateReturnsOnCall(i int, result1 *gochimp3.
 	}{result1, result2}
 }
 
-func (fake *FakeMailchimp) request(arg1 context.Context, arg2 string, arg3 string, arg4 gochimp3.QueryParams, arg5 interface{}, arg6 interface{}) error {
-	fake.requestMutex.Lock()
-	ret, specificReturn := fake.requestReturnsOnCall[len(fake.requestArgsForCall)]
-	fake.requestArgsForCall = append(fake.requestArgsForCall, struct {
-		arg1 context.Context
-		arg2 string
-		arg3 string
-		arg4 gochimp3.QueryParams
-		arg5 interface{}
-		arg6 interface{}
-	}{arg1, arg2, arg3, arg4, arg5, arg6})
-	stub := fake.requestStub
-	fakeReturns := fake.requestReturns
-	fake.recordInvocation("request", []interface{}{arg1, arg2, arg3, arg4, arg5, arg6})
-	fake.requestMutex.Unlock()
-	if stub != nil {
-		return stub(arg1, arg2, arg3, arg4, arg5, arg6)
-	}
-	if specificReturn {
-		return ret.result1
-	}
-	return fakeReturns.result1
-}
-
-func (fake *FakeMailchimp) RequestCallCount() int {
-	fake.requestMutex.RLock()
-	defer fake.requestMutex.RUnlock()
-	return len(fake.requestArgsForCall)
-}
-
-func (fake *FakeMailchimp) RequestCalls(stub func(context.Context, string, string, gochimp3.QueryParams, interface{}, interface{}) error) {
-	fake.requestMutex.Lock()
-	defer fake.requestMutex.Unlock()
-	fake.requestStub = stub
-}
-
-func (fake *FakeMailchimp) RequestArgsForCall(i int) (context.Context, string, string, gochimp3.QueryParams, interface{}, interface{}) {
-	fake.requestMutex.RLock()
-	defer fake.requestMutex.RUnlock()
-	argsForCall := fake.requestArgsForCall[i]
-	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3, argsForCall.arg4, argsForCall.arg5, argsForCall.arg6
-}
-
-func (fake *FakeMailchimp) RequestReturns(result1 error) {
-	fake.requestMutex.Lock()
-	defer fake.requestMutex.Unlock()
-	fake.requestStub = nil
-	fake.requestReturns = struct {
-		result1 error
-	}{result1}
-}
-
-func (fake *FakeMailchimp) RequestReturnsOnCall(i int, result1 error) {
-	fake.requestMutex.Lock()
-	defer fake.requestMutex.Unlock()
-	fake.requestStub = nil
-	if fake.requestReturnsOnCall == nil {
-		fake.requestReturnsOnCall = make(map[int]struct {
-			result1 error
-		})
-	}
-	fake.requestReturnsOnCall[i] = struct {
-		result1 error
-	}{result1}
-}
-
-func (fake *FakeMailchimp) requestOk(arg1 context.Context, arg2 string, arg3 string) (bool, error) {
-	fake.requestOkMutex.Lock()
-	ret, specificReturn := fake.requestOkReturnsOnCall[len(fake.requestOkArgsForCall)]
-	fake.requestOkArgsForCall = append(fake.requestOkArgsForCall, struct {
-		arg1 context.Context
-		arg2 string
-		arg3 string
-	}{arg1, arg2, arg3})
-	stub := fake.requestOkStub
-	fakeReturns := fake.requestOkReturns
-	fake.recordInvocation("requestOk", []interface{}{arg1, arg2, arg3})
-	fake.requestOkMutex.Unlock()
-	if stub != nil {
-		return stub(arg1, arg2, arg3)
-	}
-	if specificReturn {
-		return ret.result1, ret.result2
-	}
-	return fakeReturns.result1, fakeReturns.result2
-}
-
-func (fake *FakeMailchimp) RequestOkCallCount() int {
-	fake.requestOkMutex.RLock()
-	defer fake.requestOkMutex.RUnlock()
-	return len(fake.requestOkArgsForCall)
-}
-
-func (fake *FakeMailchimp) RequestOkCalls(stub func(context.Context, string, string) (bool, error)) {
-	fake.requestOkMutex.Lock()
-	defer fake.requestOkMutex.Unlock()
-	fake.requestOkStub = stub
-}
-
-func (fake *FakeMailchimp) RequestOkArgsForCall(i int) (context.Context, string, string) {
-	fake.requestOkMutex.RLock()
-	defer fake.requestOkMutex.RUnlock()
-	argsForCall := fake.requestOkArgsForCall[i]
-	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3
-}
-
-func (fake *FakeMailchimp) RequestOkReturns(result1 bool, result2 error) {
-	fake.requestOkMutex.Lock()
-	defer fake.requestOkMutex.Unlock()
-	fake.requestOkStub = nil
-	fake.requestOkReturns = struct {
-		result1 bool
-		result2 error
-	}{result1, result2}
-}
-
-func (fake *FakeMailchimp) RequestOkReturnsOnCall(i int, result1 bool, result2 error) {
-	fake.requestOkMutex.Lock()
-	defer fake.requestOkMutex.Unlock()
-	fake.requestOkStub = nil
-	if fake.requestOkReturnsOnCall == nil {
-		fake.requestOkReturnsOnCall = make(map[int]struct {
-			result1 bool
-			result2 error
-		})
-	}
-	fake.requestOkReturnsOnCall[i] = struct {
-		result1 bool
-		result2 error
-	}{result1, result2}
-}
-
 func (fake *FakeMailchimp) Invocations() map[string][][]interface{} {
 	fake.invocationsMutex.RLock()
 	defer fake.invocationsMutex.RUnlock()
@@ -2621,10 +2458,6 @@ func (fake *FakeMailchimp) Invocations() map[string][][]interface{} {
 	defer fake.updateListMutex.RUnlock()
 	fake.updateTemplateMutex.RLock()
 	defer fake.updateTemplateMutex.RUnlock()
-	fake.requestMutex.RLock()
-	defer fake.requestMutex.RUnlock()
-	fake.requestOkMutex.RLock()
-	defer fake.requestOkMutex.RUnlock()
 	copiedInvocations := map[string][][]interface{}{}
 	for key, value := range fake.invocations {
 		copiedInvocations[key] = value

@@ -66,8 +66,6 @@ type Mailchimp interface {
 	UpdateCampaignContent(ctx context.Context, id string, body *CampaignContentUpdateRequest) (*CampaignContentResponse, error)
 	UpdateList(ctx context.Context, id string, body *ListCreationRequest) (*ListResponse, error)
 	UpdateTemplate(ctx context.Context, id string, body *TemplateCreationRequest) (*TemplateResponse, error)
-	request(ctx context.Context, method string, path string, params QueryParams, body interface{}, response interface{}) error
-	requestOk(ctx context.Context, method string, path string) (bool, error)
 }
 
 var _ Mailchimp = &API{}
