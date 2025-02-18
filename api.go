@@ -34,6 +34,65 @@ type API struct {
 	endpoint string
 }
 
+//go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 . Mailchimp
+type Mailchimp interface {
+	CreateAuthorizedApp(body *AuthorizedAppRequest) (*AuthorizedAppCreateResponse, error)
+	CreateAutomationEmailQueue(workflowID string, emailID string, emailAddress string) (*AutomationQueue, error)
+	CreateAutomationRemovedSubscribers(workflowID string, emailAddress string) (*RemovedSubscriber, error)
+	CreateBatchOperation(body *BatchOperationCreationRequest) (*BatchOperationResponse, error)
+	CreateCampaign(body *CampaignCreationRequest) (*CampaignResponse, error)
+	CreateCampaignFolder(body *CampaignFolderCreationRequest) (*CampaignFolder, error)
+	CreateList(body *ListCreationRequest) (*ListResponse, error)
+	CreateStore(req *Store) (*Store, error)
+	CreateTemplate(body *TemplateCreationRequest) (*TemplateResponse, error)
+	CreateTemplateFolder(body *TemplateFolderCreationRequest) (*TemplateFolder, error)
+	DeleteCampaign(id string) (bool, error)
+	DeleteList(id string) (bool, error)
+	DeleteStore(id string) (bool, error)
+	DeleteTemplate(id string) (bool, error)
+	GetAuthorizedApps(params *ExtendedQueryParams) (*ListOfAuthorizedApps, error)
+	GetAuthroizedApp(id string, params *BasicQueryParams) (*AuthorizedApp, error)
+	GetAutomation(id string) (*Automation, error)
+	GetAutomationEmail(automationID string, emailID string) (*AutomationEmail, error)
+	GetAutomationEmails(automationID string) (*ListOfEmails, error)
+	GetAutomationQueue(workflowID string, emailID string, subsID string) (*AutomationQueue, error)
+	GetAutomationQueues(workflowID string, emailID string) (*ListOfAutomationQueues, error)
+	GetAutomationRemovedSubscribers(workflowID string) (*ListOfRemovedSubscribers, error)
+	GetAutomations(params *BasicQueryParams) (*ListOfAutomations, error)
+	GetBatchOperation(id string, params *BasicQueryParams) (*BatchOperationResponse, error)
+	GetBatchOperations(params *ListQueryParams) (*ListOfBatchOperations, error)
+	GetCampaign(id string, params *BasicQueryParams) (*CampaignResponse, error)
+	GetCampaignContent(id string, params *BasicQueryParams) (*CampaignContentResponse, error)
+	GetCampaignFolders(params *CampaignFolderQueryParams) (*ListOfCampaignFolders, error)
+	GetCampaigns(params *CampaignQueryParams) (*ListOfCampaigns, error)
+	GetList(id string, params *BasicQueryParams) (*ListResponse, error)
+	GetLists(params *ListQueryParams) (*ListOfLists, error)
+	GetRoot(params *BasicQueryParams) (*RootResponse, error)
+	GetStore(id string, params QueryParams) (*Store, error)
+	GetStores(params *ExtendedQueryParams) (*StoreList, error)
+	GetTemplate(id string, params *BasicQueryParams) (*TemplateResponse, error)
+	GetTemplateDefaultContent(id string, params *BasicQueryParams) (*TemplateDefaultContentResponse, error)
+	GetTemplateFolders(params *TemplateFolderQueryParams) (*ListOfTemplateFolders, error)
+	GetTemplates(params *TemplateQueryParams) (*ListOfTemplates, error)
+	MemberForApiCalls(listId string, email string) *Member
+	NewListResponse(id string) *ListResponse
+	PauseSending(workflowID string, emailID string) (bool, error)
+	PauseSendingAll(id string) (bool, error)
+	Request(method string, path string, params QueryParams, body interface{}, response interface{}) error
+	RequestOk(method string, path string) (bool, error)
+	SendCampaign(id string, body *SendCampaignRequest) (bool, error)
+	SendTestEmail(id string, body *TestEmailRequest) (bool, error)
+	StartSending(workflowID string, emailID string) (bool, error)
+	StartSendingAll(id string) (bool, error)
+	UpdateCampaign(id string, body *CampaignCreationRequest) (*CampaignResponse, error)
+	UpdateCampaignContent(id string, body *CampaignContentUpdateRequest) (*CampaignContentResponse, error)
+	UpdateList(id string, body *ListCreationRequest) (*ListResponse, error)
+	UpdateStore(req *Store) (*Store, error)
+	UpdateTemplate(id string, body *TemplateCreationRequest) (*TemplateResponse, error)
+}
+
+var _ Mailchimp = &API{}
+
 // New creates a API
 func New(apiKey string, client *http.Client) *API {
 	u := url.URL{}
