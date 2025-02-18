@@ -31,7 +31,7 @@ func TestMain(m *testing.M) {
 }
 
 func testAPI() *API {
-	api := New("apikey")
+	api := New("apikey", nil)
 	api.endpoint = testServer
 	api.Debug = true
 	return api

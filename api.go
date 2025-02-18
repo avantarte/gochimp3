@@ -12,7 +12,6 @@ import (
 	"net/url"
 	"reflect"
 	"regexp"
-	"time"
 )
 
 // URIFormat defines the endpoint for a single app
@@ -26,9 +25,8 @@ var DatacenterRegex = regexp.MustCompile("[^-]\\w+$")
 
 // API represents the origin of the API
 type API struct {
-	Key       string
-	Timeout   time.Duration
-	Transport http.RoundTripper
+	Key    string
+	Client *http.Client
 
 	User  string
 	Debug bool
@@ -37,26 +35,26 @@ type API struct {
 }
 
 // New creates a API
-func New(apiKey string) *API {
+func New(apiKey string, client *http.Client) *API {
 	u := url.URL{}
 	u.Scheme = "https"
 	u.Host = fmt.Sprintf(URIFormat, DatacenterRegex.FindString(apiKey))
 	u.Path = Version
 
+	if client == nil {
+		client = http.DefaultClient
+	}
+
 	return &API{
 		User:     "gochimp3",
 		Key:      apiKey,
 		endpoint: u.String(),
+		Client:   client,
 	}
 }
 
 // Request will make a call to the actual API.
 func (api *API) Request(method, path string, params QueryParams, body, response interface{}) error {
-	client := &http.Client{Transport: api.Transport}
-	if api.Timeout > 0 {
-		client.Timeout = api.Timeout
-	}
-
 	requestURL := fmt.Sprintf("%s%s", api.endpoint, path)
 	if api.Debug {
 		log.Printf("Requesting %s: %s\n", method, requestURL)
@@ -92,7 +90,7 @@ func (api *API) Request(method, path string, params QueryParams, body, response 
 			}
 		}
 		req.URL.RawQuery = queryParams.Encode()
-		
+
 		if api.Debug {
 			log.Printf("Adding query params: %q\n", req.URL.Query())
 		}
@@ -103,7 +101,7 @@ func (api *API) Request(method, path string, params QueryParams, body, response 
 		log.Printf("%s", string(dump))
 	}
 
-	resp, err := client.Do(req)
+	resp, err := api.Client.Do(req)
 	if err != nil {
 		return err
 	}
