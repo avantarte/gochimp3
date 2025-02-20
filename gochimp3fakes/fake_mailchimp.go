@@ -4,6 +4,7 @@ package gochimp3fakes
 import (
 	"context"
 	"sync"
+	"time"
 
 	"github.com/avantarte/gochimp3"
 )
@@ -346,6 +347,21 @@ type FakeMailchimp struct {
 	newListResponseReturnsOnCall map[int]struct {
 		result1 *gochimp3.ListResponse
 	}
+	ScheduleCampaignStub        func(context.Context, string, *time.Time) (bool, error)
+	scheduleCampaignMutex       sync.RWMutex
+	scheduleCampaignArgsForCall []struct {
+		arg1 context.Context
+		arg2 string
+		arg3 *time.Time
+	}
+	scheduleCampaignReturns struct {
+		result1 bool
+		result2 error
+	}
+	scheduleCampaignReturnsOnCall map[int]struct {
+		result1 bool
+		result2 error
+	}
 	SendCampaignStub        func(context.Context, string, *gochimp3.SendCampaignRequest) (bool, error)
 	sendCampaignMutex       sync.RWMutex
 	sendCampaignArgsForCall []struct {
@@ -373,6 +389,20 @@ type FakeMailchimp struct {
 		result2 error
 	}
 	sendTestEmailReturnsOnCall map[int]struct {
+		result1 bool
+		result2 error
+	}
+	UnscheduleCampaignStub        func(context.Context, string) (bool, error)
+	unscheduleCampaignMutex       sync.RWMutex
+	unscheduleCampaignArgsForCall []struct {
+		arg1 context.Context
+		arg2 string
+	}
+	unscheduleCampaignReturns struct {
+		result1 bool
+		result2 error
+	}
+	unscheduleCampaignReturnsOnCall map[int]struct {
 		result1 bool
 		result2 error
 	}
@@ -1999,6 +2029,72 @@ func (fake *FakeMailchimp) NewListResponseReturnsOnCall(i int, result1 *gochimp3
 	}{result1}
 }
 
+func (fake *FakeMailchimp) ScheduleCampaign(arg1 context.Context, arg2 string, arg3 *time.Time) (bool, error) {
+	fake.scheduleCampaignMutex.Lock()
+	ret, specificReturn := fake.scheduleCampaignReturnsOnCall[len(fake.scheduleCampaignArgsForCall)]
+	fake.scheduleCampaignArgsForCall = append(fake.scheduleCampaignArgsForCall, struct {
+		arg1 context.Context
+		arg2 string
+		arg3 *time.Time
+	}{arg1, arg2, arg3})
+	stub := fake.ScheduleCampaignStub
+	fakeReturns := fake.scheduleCampaignReturns
+	fake.recordInvocation("ScheduleCampaign", []interface{}{arg1, arg2, arg3})
+	fake.scheduleCampaignMutex.Unlock()
+	if stub != nil {
+		return stub(arg1, arg2, arg3)
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *FakeMailchimp) ScheduleCampaignCallCount() int {
+	fake.scheduleCampaignMutex.RLock()
+	defer fake.scheduleCampaignMutex.RUnlock()
+	return len(fake.scheduleCampaignArgsForCall)
+}
+
+func (fake *FakeMailchimp) ScheduleCampaignCalls(stub func(context.Context, string, *time.Time) (bool, error)) {
+	fake.scheduleCampaignMutex.Lock()
+	defer fake.scheduleCampaignMutex.Unlock()
+	fake.ScheduleCampaignStub = stub
+}
+
+func (fake *FakeMailchimp) ScheduleCampaignArgsForCall(i int) (context.Context, string, *time.Time) {
+	fake.scheduleCampaignMutex.RLock()
+	defer fake.scheduleCampaignMutex.RUnlock()
+	argsForCall := fake.scheduleCampaignArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3
+}
+
+func (fake *FakeMailchimp) ScheduleCampaignReturns(result1 bool, result2 error) {
+	fake.scheduleCampaignMutex.Lock()
+	defer fake.scheduleCampaignMutex.Unlock()
+	fake.ScheduleCampaignStub = nil
+	fake.scheduleCampaignReturns = struct {
+		result1 bool
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *FakeMailchimp) ScheduleCampaignReturnsOnCall(i int, result1 bool, result2 error) {
+	fake.scheduleCampaignMutex.Lock()
+	defer fake.scheduleCampaignMutex.Unlock()
+	fake.ScheduleCampaignStub = nil
+	if fake.scheduleCampaignReturnsOnCall == nil {
+		fake.scheduleCampaignReturnsOnCall = make(map[int]struct {
+			result1 bool
+			result2 error
+		})
+	}
+	fake.scheduleCampaignReturnsOnCall[i] = struct {
+		result1 bool
+		result2 error
+	}{result1, result2}
+}
+
 func (fake *FakeMailchimp) SendCampaign(arg1 context.Context, arg2 string, arg3 *gochimp3.SendCampaignRequest) (bool, error) {
 	fake.sendCampaignMutex.Lock()
 	ret, specificReturn := fake.sendCampaignReturnsOnCall[len(fake.sendCampaignArgsForCall)]
@@ -2126,6 +2222,71 @@ func (fake *FakeMailchimp) SendTestEmailReturnsOnCall(i int, result1 bool, resul
 		})
 	}
 	fake.sendTestEmailReturnsOnCall[i] = struct {
+		result1 bool
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *FakeMailchimp) UnscheduleCampaign(arg1 context.Context, arg2 string) (bool, error) {
+	fake.unscheduleCampaignMutex.Lock()
+	ret, specificReturn := fake.unscheduleCampaignReturnsOnCall[len(fake.unscheduleCampaignArgsForCall)]
+	fake.unscheduleCampaignArgsForCall = append(fake.unscheduleCampaignArgsForCall, struct {
+		arg1 context.Context
+		arg2 string
+	}{arg1, arg2})
+	stub := fake.UnscheduleCampaignStub
+	fakeReturns := fake.unscheduleCampaignReturns
+	fake.recordInvocation("UnscheduleCampaign", []interface{}{arg1, arg2})
+	fake.unscheduleCampaignMutex.Unlock()
+	if stub != nil {
+		return stub(arg1, arg2)
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *FakeMailchimp) UnscheduleCampaignCallCount() int {
+	fake.unscheduleCampaignMutex.RLock()
+	defer fake.unscheduleCampaignMutex.RUnlock()
+	return len(fake.unscheduleCampaignArgsForCall)
+}
+
+func (fake *FakeMailchimp) UnscheduleCampaignCalls(stub func(context.Context, string) (bool, error)) {
+	fake.unscheduleCampaignMutex.Lock()
+	defer fake.unscheduleCampaignMutex.Unlock()
+	fake.UnscheduleCampaignStub = stub
+}
+
+func (fake *FakeMailchimp) UnscheduleCampaignArgsForCall(i int) (context.Context, string) {
+	fake.unscheduleCampaignMutex.RLock()
+	defer fake.unscheduleCampaignMutex.RUnlock()
+	argsForCall := fake.unscheduleCampaignArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2
+}
+
+func (fake *FakeMailchimp) UnscheduleCampaignReturns(result1 bool, result2 error) {
+	fake.unscheduleCampaignMutex.Lock()
+	defer fake.unscheduleCampaignMutex.Unlock()
+	fake.UnscheduleCampaignStub = nil
+	fake.unscheduleCampaignReturns = struct {
+		result1 bool
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *FakeMailchimp) UnscheduleCampaignReturnsOnCall(i int, result1 bool, result2 error) {
+	fake.unscheduleCampaignMutex.Lock()
+	defer fake.unscheduleCampaignMutex.Unlock()
+	fake.UnscheduleCampaignStub = nil
+	if fake.unscheduleCampaignReturnsOnCall == nil {
+		fake.unscheduleCampaignReturnsOnCall = make(map[int]struct {
+			result1 bool
+			result2 error
+		})
+	}
+	fake.unscheduleCampaignReturnsOnCall[i] = struct {
 		result1 bool
 		result2 error
 	}{result1, result2}
@@ -2446,10 +2607,14 @@ func (fake *FakeMailchimp) Invocations() map[string][][]interface{} {
 	defer fake.memberForApiCallsMutex.RUnlock()
 	fake.newListResponseMutex.RLock()
 	defer fake.newListResponseMutex.RUnlock()
+	fake.scheduleCampaignMutex.RLock()
+	defer fake.scheduleCampaignMutex.RUnlock()
 	fake.sendCampaignMutex.RLock()
 	defer fake.sendCampaignMutex.RUnlock()
 	fake.sendTestEmailMutex.RLock()
 	defer fake.sendTestEmailMutex.RUnlock()
+	fake.unscheduleCampaignMutex.RLock()
+	defer fake.unscheduleCampaignMutex.RUnlock()
 	fake.updateCampaignMutex.RLock()
 	defer fake.updateCampaignMutex.RUnlock()
 	fake.updateCampaignContentMutex.RLock()

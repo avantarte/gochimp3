@@ -12,6 +12,7 @@ import (
 	"net/url"
 	"reflect"
 	"regexp"
+	"time"
 )
 
 // URIFormat defines the endpoint for a single app
@@ -61,6 +62,9 @@ type Mailchimp interface {
 	MemberForApiCalls(listId string, email string) *Member
 	NewListResponse(id string) *ListResponse
 	SendCampaign(ctx context.Context, id string, body *SendCampaignRequest) (bool, error)
+	// ScheduleCampaign UTC date and time to schedule the campaign for delivery in ISO 8601 format. Campaigns may only be scheduled to send on the quarter-hour (:00, :15, :30, :45).
+	ScheduleCampaign(ctx context.Context, id string, scheduleTime *time.Time) (bool, error)
+	UnscheduleCampaign(ctx context.Context, id string) (bool, error)
 	SendTestEmail(ctx context.Context, id string, body *TestEmailRequest) (bool, error)
 	UpdateCampaign(ctx context.Context, id string, body *CampaignCreationRequest) (*CampaignResponse, error)
 	UpdateCampaignContent(ctx context.Context, id string, body *CampaignContentUpdateRequest) (*CampaignContentResponse, error)

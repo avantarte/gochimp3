@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 )
 
 const (
@@ -11,8 +12,10 @@ const (
 	single_campaign_path  = campaigns_path + "/%s"
 	campaign_content_path = single_campaign_path + "/content"
 
-	send_test_path = single_campaign_path + "/actions/test"
-	send_path      = single_campaign_path + "/actions/send"
+	send_test_path  = single_campaign_path + "/actions/test"
+	send_path       = single_campaign_path + "/actions/send"
+	schedule_path   = single_campaign_path + "/actions/schedule"
+	unschedule_path = single_campaign_path + "/actions/unschedule"
 
 	CAMPAIGN_TYPE_REGULAR   = "regular"
 	CAMPAIGN_TYPE_PLAINTEXT = "plaintext"
@@ -140,7 +143,7 @@ type CampaignResponseRecipients struct {
 	ListId         string `json:"list_id"`
 	ListName       string `json:"list_name"`
 	SegmentText    string `json:"segment_text"`
-	RecipientCount int    `json:"recipient_count"`
+	RecipientCount int64  `json:"recipient_count"`
 }
 
 type CampaignResponseSettings struct {
@@ -173,36 +176,41 @@ type CampaignTracking struct {
 }
 
 type CampaignEcommerce struct {
-	TotalOrders  int `json:"total_orders"`
-	TotalSpent   int `json:"total_spent"`
-	TotalRevenue int `json:"total_revenue"`
+	TotalOrders  int64 `json:"total_orders"`
+	TotalSpent   int64 `json:"total_spent"`
+	TotalRevenue int64 `json:"total_revenue"`
 }
 
 type CampaignReportSummary struct {
-	Opens            int               `json:"opens"`
-	UniqueOpens      int               `json:"unique_opens"`
-	OpenRate         float32           `json:"open_rate"`
-	Clicks           int               `json:"clicks"`
-	SubscriberClicks int               `json:"subscriber_clicks"`
-	ClickRate        float32           `json:"click_rate"`
+	Opens            int64             `json:"opens"`
+	UniqueOpens      int64             `json:"unique_opens"`
+	OpenRate         float64           `json:"open_rate"`
+	Clicks           int64             `json:"clicks"`
+	SubscriberClicks int64             `json:"subscriber_clicks"`
+	ClickRate        float64           `json:"click_rate"`
 	Ecommerce        CampaignEcommerce `json:"ecommerce"`
 }
 
 type CampaignDeliveryStatus struct {
-	Enabled bool `json:"enabled"`
+	Enabled   bool `json:"enabled"`
+	CanCancel bool `json:"can_cancel"`
+	// "delivering", "delivered", "canceling", or "canceled".
+	Status         string `json:"status"`
+	EmailsSent     int64  `json:"emails_sent"`
+	EmailsCanceled int64  `json:"emails_canceled"`
 }
 
 type CampaignResponse struct {
 	withLinks
 
 	ID                string                     `json:"id"`
-	WebID             uint                       `json:"web_id"`
+	WebID             int64                      `json:"web_id"`
 	Type              string                     `json:"type"`
 	CreateTime        string                     `json:"create_time"`
 	ArchiveUrl        string                     `json:"archive_url"`
 	LongArchiveUrl    string                     `json:"long_archive_url"`
 	Status            string                     `json:"status"`
-	EmailsSent        uint                       `json:"emails_sent"`
+	EmailsSent        int64                      `json:"emails_sent"`
 	SendTime          string                     `json:"send_time"`
 	ContentType       string                     `json:"content_type"`
 	NeedsBlockRefresh bool                       `json:"needs_block_refresh"`
@@ -280,6 +288,11 @@ type SendCampaignRequest struct {
 	CampaignId string `json:"campaign_id"`
 }
 
+type ScheduleCampaignRequest struct {
+	// The UTC date and time to schedule the campaign for delivery in ISO 8601 format. Campaigns may only be scheduled to send on the quarter-hour (:00, :15, :30, :45).
+	ScheduleTime string `json:"schedule_time"`
+}
+
 func (api *API) SendTestEmail(ctx context.Context, id string, body *TestEmailRequest) (bool, error) {
 	endpoint := fmt.Sprintf(send_test_path, id)
 	err := api.request(ctx, "POST", endpoint, nil, body, nil)
@@ -298,6 +311,26 @@ func (api *API) SendCampaign(ctx context.Context, id string, body *SendCampaignR
 		return false, err
 	}
 	return true, nil
+}
+
+// ScheduleCampaign UTC date and time to schedule the campaign for delivery in ISO 8601 format. Campaigns may only be scheduled to send on the quarter-hour (:00, :15, :30, :45).
+func (api *API) ScheduleCampaign(ctx context.Context, id string, scheduleTime *time.Time) (bool, error) {
+	body := ScheduleCampaignRequest{
+		ScheduleTime: scheduleTime.Format(time.RFC3339),
+	}
+
+	endpoint := fmt.Sprintf(schedule_path, id)
+	err := api.request(ctx, "POST", endpoint, nil, body, nil)
+
+	if err != nil {
+		return false, err
+	}
+	return true, nil
+}
+
+func (api *API) UnscheduleCampaign(ctx context.Context, id string) (bool, error) {
+	endpoint := fmt.Sprintf(unschedule_path, id)
+	return api.requestOk(ctx, "POST", endpoint)
 }
 
 // ------------------------------------------------------------------------------------------------
