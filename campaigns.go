@@ -86,6 +86,29 @@ type InterestsCondition struct {
 	Value         []string `json:"value"`
 }
 
+type StaticSegmentCondition struct {
+	ConditionType string `json:"condition_type"`
+	Field         string `json:"field"`
+	Op            string `json:"op"`
+	Value         int    `json:"value"`
+}
+
+func NewStaticSegmentCondition(id int, isEqual bool) *StaticSegmentCondition {
+	c := &StaticSegmentCondition{
+		ConditionType: "StaticSegment",
+		Field:         "static_segment",
+		Value:         id,
+	}
+
+	if isEqual {
+		c.Op = "static_is"
+	} else {
+		c.Op = "static_not"
+	}
+
+	return c
+}
+
 type CampaignCreationSettings struct {
 	SubjectLine     string `json:"subject_line"`
 	PreviewText     string `json:"preview_text"`
