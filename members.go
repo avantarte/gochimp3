@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"strings"
 )
 
 const (
@@ -100,12 +101,11 @@ func (mem *Member) WithApi(api *API) *Member {
 }
 
 func (mem *Member) SetIdByMail(email string) *Member {
-	h := md5.New()
-	_, err := io.WriteString(h, email)
+	id, err := EmailToMemberID(email)
 	if err != nil {
 		panic(err)
 	}
-	mem.ID = fmt.Sprintf("%x", h.Sum(nil))
+	mem.ID = id
 	return mem
 }
 
@@ -433,4 +433,16 @@ func (mem *Member) UpdateTags(ctx context.Context, tags []UpdateMemberTag) (*Lis
 	}
 
 	return response, mem.api.request(ctx, "POST", endpoint, nil, &body, response)
+}
+
+// EmailToMemberID converts given email address to subscriber_hash to be used as ID in Member API.
+func EmailToMemberID(email string) (string, error) {
+	h := md5.New()
+
+	_, err := io.WriteString(h, strings.ToLower(email))
+	if err != nil {
+		return "", err
+	}
+
+	return fmt.Sprintf("%x", h.Sum(nil)), nil
 }
