@@ -66,7 +66,7 @@ func (q CampaignQueryParams) Params() map[string]string {
 
 type ListOfCampaigns struct {
 	baseList
-	Campaigns []CampaignResponse `json:"campaigns"`
+	Campaigns []*CampaignResponse `json:"campaigns"`
 }
 
 type CampaignCreationRecipients struct {
