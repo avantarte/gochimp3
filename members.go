@@ -217,6 +217,23 @@ func (list *ListResponse) AddOrUpdateMember(ctx context.Context, id string, body
 	return response, list.api.request(ctx, "PUT", endpoint, nil, body, response)
 }
 
+func (api *API) ListAddOrUpdateMember(ctx context.Context, listID, memberID string, body *MemberRequest) (*Member, error) {
+	if memberID == "" {
+		if body.EmailAddress == "" {
+			return nil, errors.New("email address or memberID is required")
+		}
+
+		var err error
+
+		memberID, err = EmailToMemberID(body.EmailAddress)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return api.NewListResponse(listID).AddOrUpdateMember(ctx, memberID, body)
+}
+
 func (list *ListResponse) DeleteMember(ctx context.Context, id string) (bool, error) {
 	if err := list.CanMakeRequest(); err != nil {
 		return false, err

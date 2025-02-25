@@ -324,6 +324,22 @@ type FakeMailchimp struct {
 		result1 *gochimp3.ListOfTemplates
 		result2 error
 	}
+	ListAddOrUpdateMemberStub        func(context.Context, string, string, *gochimp3.MemberRequest) (*gochimp3.Member, error)
+	listAddOrUpdateMemberMutex       sync.RWMutex
+	listAddOrUpdateMemberArgsForCall []struct {
+		arg1 context.Context
+		arg2 string
+		arg3 string
+		arg4 *gochimp3.MemberRequest
+	}
+	listAddOrUpdateMemberReturns struct {
+		result1 *gochimp3.Member
+		result2 error
+	}
+	listAddOrUpdateMemberReturnsOnCall map[int]struct {
+		result1 *gochimp3.Member
+		result2 error
+	}
 	MemberForApiCallsStub        func(string, string) *gochimp3.Member
 	memberForApiCallsMutex       sync.RWMutex
 	memberForApiCallsArgsForCall []struct {
@@ -1906,6 +1922,73 @@ func (fake *FakeMailchimp) GetTemplatesReturnsOnCall(i int, result1 *gochimp3.Li
 	}{result1, result2}
 }
 
+func (fake *FakeMailchimp) ListAddOrUpdateMember(arg1 context.Context, arg2 string, arg3 string, arg4 *gochimp3.MemberRequest) (*gochimp3.Member, error) {
+	fake.listAddOrUpdateMemberMutex.Lock()
+	ret, specificReturn := fake.listAddOrUpdateMemberReturnsOnCall[len(fake.listAddOrUpdateMemberArgsForCall)]
+	fake.listAddOrUpdateMemberArgsForCall = append(fake.listAddOrUpdateMemberArgsForCall, struct {
+		arg1 context.Context
+		arg2 string
+		arg3 string
+		arg4 *gochimp3.MemberRequest
+	}{arg1, arg2, arg3, arg4})
+	stub := fake.ListAddOrUpdateMemberStub
+	fakeReturns := fake.listAddOrUpdateMemberReturns
+	fake.recordInvocation("ListAddOrUpdateMember", []interface{}{arg1, arg2, arg3, arg4})
+	fake.listAddOrUpdateMemberMutex.Unlock()
+	if stub != nil {
+		return stub(arg1, arg2, arg3, arg4)
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *FakeMailchimp) ListAddOrUpdateMemberCallCount() int {
+	fake.listAddOrUpdateMemberMutex.RLock()
+	defer fake.listAddOrUpdateMemberMutex.RUnlock()
+	return len(fake.listAddOrUpdateMemberArgsForCall)
+}
+
+func (fake *FakeMailchimp) ListAddOrUpdateMemberCalls(stub func(context.Context, string, string, *gochimp3.MemberRequest) (*gochimp3.Member, error)) {
+	fake.listAddOrUpdateMemberMutex.Lock()
+	defer fake.listAddOrUpdateMemberMutex.Unlock()
+	fake.ListAddOrUpdateMemberStub = stub
+}
+
+func (fake *FakeMailchimp) ListAddOrUpdateMemberArgsForCall(i int) (context.Context, string, string, *gochimp3.MemberRequest) {
+	fake.listAddOrUpdateMemberMutex.RLock()
+	defer fake.listAddOrUpdateMemberMutex.RUnlock()
+	argsForCall := fake.listAddOrUpdateMemberArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3, argsForCall.arg4
+}
+
+func (fake *FakeMailchimp) ListAddOrUpdateMemberReturns(result1 *gochimp3.Member, result2 error) {
+	fake.listAddOrUpdateMemberMutex.Lock()
+	defer fake.listAddOrUpdateMemberMutex.Unlock()
+	fake.ListAddOrUpdateMemberStub = nil
+	fake.listAddOrUpdateMemberReturns = struct {
+		result1 *gochimp3.Member
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *FakeMailchimp) ListAddOrUpdateMemberReturnsOnCall(i int, result1 *gochimp3.Member, result2 error) {
+	fake.listAddOrUpdateMemberMutex.Lock()
+	defer fake.listAddOrUpdateMemberMutex.Unlock()
+	fake.ListAddOrUpdateMemberStub = nil
+	if fake.listAddOrUpdateMemberReturnsOnCall == nil {
+		fake.listAddOrUpdateMemberReturnsOnCall = make(map[int]struct {
+			result1 *gochimp3.Member
+			result2 error
+		})
+	}
+	fake.listAddOrUpdateMemberReturnsOnCall[i] = struct {
+		result1 *gochimp3.Member
+		result2 error
+	}{result1, result2}
+}
+
 func (fake *FakeMailchimp) MemberForApiCalls(arg1 string, arg2 string) *gochimp3.Member {
 	fake.memberForApiCallsMutex.Lock()
 	ret, specificReturn := fake.memberForApiCallsReturnsOnCall[len(fake.memberForApiCallsArgsForCall)]
@@ -2603,6 +2686,8 @@ func (fake *FakeMailchimp) Invocations() map[string][][]interface{} {
 	defer fake.getTemplateFoldersMutex.RUnlock()
 	fake.getTemplatesMutex.RLock()
 	defer fake.getTemplatesMutex.RUnlock()
+	fake.listAddOrUpdateMemberMutex.RLock()
+	defer fake.listAddOrUpdateMemberMutex.RUnlock()
 	fake.memberForApiCallsMutex.RLock()
 	defer fake.memberForApiCallsMutex.RUnlock()
 	fake.newListResponseMutex.RLock()

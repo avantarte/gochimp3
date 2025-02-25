@@ -70,6 +70,8 @@ type Mailchimp interface {
 	UpdateCampaignContent(ctx context.Context, id string, body *CampaignContentUpdateRequest) (*CampaignContentResponse, error)
 	UpdateList(ctx context.Context, id string, body *ListCreationRequest) (*ListResponse, error)
 	UpdateTemplate(ctx context.Context, id string, body *TemplateCreationRequest) (*TemplateResponse, error)
+	// ListAddOrUpdateMember if memberID is empty, body.EmailAddress is hashed as ID
+	ListAddOrUpdateMember(ctx context.Context, listID, memberID string, body *MemberRequest) (*Member, error)
 }
 
 var _ Mailchimp = &API{}
