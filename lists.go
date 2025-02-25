@@ -73,6 +73,7 @@ type ListResponse struct {
 	withLinks
 
 	ID                string   `json:"id"`
+	WebID             int64    `json:"web_id"`
 	DateCreated       string   `json:"date_created"`
 	ListRating        int      `json:"list_rating"`
 	SubscribeURLShort string   `json:"subscribe_url_short"`
