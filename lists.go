@@ -65,7 +65,6 @@ type ListCreationRequest struct {
 	NotifyOnSubscribe   string           `json:"notify_on_subscribe"`
 	NotifyOnUnsubscribe string           `json:"notify_on_unsubscribe"`
 	EmailTypeOption     bool             `json:"email_type_option"`
-	Visibility          string           `json:"visibility"`
 }
 
 type ListResponse struct {
