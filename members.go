@@ -169,6 +169,10 @@ func (list *ListResponse) GetMembers(ctx context.Context, params *InterestCatego
 	return response, nil
 }
 
+func (api *API) ListGetMembers(ctx context.Context, listID string, params *InterestCategoriesQueryParams) (*ListOfMembers, error) {
+	return api.NewListResponse(listID).GetMembers(ctx, params)
+}
+
 func (list *ListResponse) GetMember(ctx context.Context, id string, params *BasicQueryParams) (*Member, error) {
 	if err := list.CanMakeRequest(); err != nil {
 		return nil, err
