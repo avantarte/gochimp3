@@ -83,6 +83,18 @@ type Member struct {
 	api *API
 }
 
+type ListGetMembersParams struct {
+	ExtendedQueryParams
+
+	UnsubscribedSince  string `json:"unsubscribed_since"`
+	SinceTimestampOpt  string `json:"since_timestamp_opt"`
+	BeforeTimestampOpt string `json:"before_timestamp_opt"`
+	SinceLastChanged   string `json:"since_last_changed"`
+	BeforeLastChanged  string `json:"before_last_changed"`
+	SinceLastCampaign  string `json:"since_last_campaign"`
+	UniqueEmailID      string `json:"unique_email_id"`
+}
+
 func (mem *Member) CanMakeRequest() error {
 	if mem.ListID == "" {
 		return errors.New("No ListID provided")
@@ -149,7 +161,7 @@ type MemberTag struct {
 	Name string `json:"name"`
 }
 
-func (list *ListResponse) GetMembers(ctx context.Context, params *InterestCategoriesQueryParams) (*ListOfMembers, error) {
+func (list *ListResponse) GetMembers(ctx context.Context, params *ListGetMembersParams) (*ListOfMembers, error) {
 	if err := list.CanMakeRequest(); err != nil {
 		return nil, err
 	}
@@ -169,7 +181,7 @@ func (list *ListResponse) GetMembers(ctx context.Context, params *InterestCatego
 	return response, nil
 }
 
-func (api *API) ListGetMembers(ctx context.Context, listID string, params *InterestCategoriesQueryParams) (*ListOfMembers, error) {
+func (api *API) ListGetMembers(ctx context.Context, listID string, params *ListGetMembersParams) (*ListOfMembers, error) {
 	return api.NewListResponse(listID).GetMembers(ctx, params)
 }
 

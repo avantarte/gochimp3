@@ -340,12 +340,12 @@ type FakeMailchimp struct {
 		result1 *gochimp3.Member
 		result2 error
 	}
-	ListGetMembersStub        func(context.Context, string, *gochimp3.InterestCategoriesQueryParams) (*gochimp3.ListOfMembers, error)
+	ListGetMembersStub        func(context.Context, string, *gochimp3.ListGetMembersParams) (*gochimp3.ListOfMembers, error)
 	listGetMembersMutex       sync.RWMutex
 	listGetMembersArgsForCall []struct {
 		arg1 context.Context
 		arg2 string
-		arg3 *gochimp3.InterestCategoriesQueryParams
+		arg3 *gochimp3.ListGetMembersParams
 	}
 	listGetMembersReturns struct {
 		result1 *gochimp3.ListOfMembers
@@ -2004,13 +2004,13 @@ func (fake *FakeMailchimp) ListAddOrUpdateMemberReturnsOnCall(i int, result1 *go
 	}{result1, result2}
 }
 
-func (fake *FakeMailchimp) ListGetMembers(arg1 context.Context, arg2 string, arg3 *gochimp3.InterestCategoriesQueryParams) (*gochimp3.ListOfMembers, error) {
+func (fake *FakeMailchimp) ListGetMembers(arg1 context.Context, arg2 string, arg3 *gochimp3.ListGetMembersParams) (*gochimp3.ListOfMembers, error) {
 	fake.listGetMembersMutex.Lock()
 	ret, specificReturn := fake.listGetMembersReturnsOnCall[len(fake.listGetMembersArgsForCall)]
 	fake.listGetMembersArgsForCall = append(fake.listGetMembersArgsForCall, struct {
 		arg1 context.Context
 		arg2 string
-		arg3 *gochimp3.InterestCategoriesQueryParams
+		arg3 *gochimp3.ListGetMembersParams
 	}{arg1, arg2, arg3})
 	stub := fake.ListGetMembersStub
 	fakeReturns := fake.listGetMembersReturns
@@ -2031,13 +2031,13 @@ func (fake *FakeMailchimp) ListGetMembersCallCount() int {
 	return len(fake.listGetMembersArgsForCall)
 }
 
-func (fake *FakeMailchimp) ListGetMembersCalls(stub func(context.Context, string, *gochimp3.InterestCategoriesQueryParams) (*gochimp3.ListOfMembers, error)) {
+func (fake *FakeMailchimp) ListGetMembersCalls(stub func(context.Context, string, *gochimp3.ListGetMembersParams) (*gochimp3.ListOfMembers, error)) {
 	fake.listGetMembersMutex.Lock()
 	defer fake.listGetMembersMutex.Unlock()
 	fake.ListGetMembersStub = stub
 }
 
-func (fake *FakeMailchimp) ListGetMembersArgsForCall(i int) (context.Context, string, *gochimp3.InterestCategoriesQueryParams) {
+func (fake *FakeMailchimp) ListGetMembersArgsForCall(i int) (context.Context, string, *gochimp3.ListGetMembersParams) {
 	fake.listGetMembersMutex.RLock()
 	defer fake.listGetMembersMutex.RUnlock()
 	argsForCall := fake.listGetMembersArgsForCall[i]
